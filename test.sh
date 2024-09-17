@@ -12,7 +12,7 @@ program_no_ext="${program%.c}"
 
 # Étape 1 : Compiler le programme avec les options de profilage
 echo "Compilation de $program avec les options de profilage..."
-gcc -pg -o "$program_no_ext" "$program"
+gcc -fopenmp -pg -o "$program_no_ext" "$program"
 
 # Vérifier si la compilation a réussi
 if [ $? -ne 0 ]; then
