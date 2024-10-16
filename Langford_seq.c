@@ -51,7 +51,7 @@ void recursLangford(int* tableau,int* maxPos,int* tabPos,int etage,int N){
 int main(){
 
     //taille du pb
-    int N=15;
+    int N=12;
         
     // t[0] flag et tab commence a t[1]
     int *tableau=malloc(sizeof(int)*(2*N+1));
