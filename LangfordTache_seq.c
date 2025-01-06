@@ -5,22 +5,17 @@
 
 
 //taille du pb
-#define N 16
+#define N 11
 #define tailleTache N/2
 
 FILE * f;
-long long nb=0;
+int nb=0;
+
+int maxPos[N+1];
+
 
 void recursLangford(int tableau[2*N+1],int maxPos[N+1],int tabPos[N+1],int etage){
     if(etage==0){
-
-        //verification qu il n y a pas de 0 
-        for(int i=1;i<=2*N;i++){
-            if(tableau[i]==0){
-                return;
-            }
-        }
-
         #pragma omp atomic
         nb++;
     }
@@ -50,15 +45,7 @@ void recursLangford(int tableau[2*N+1],int maxPos[N+1],int tabPos[N+1],int etage
 
 }
 
-void Lanford(int maxPos[N+1],int tache){
-    int tabTache[tailleTache];
-
-    int temp = tache;
-    for (int j = 0; j < tailleTache; j++) {
-        tabTache[j] = temp % (maxPos[N-j] + 1);
-        temp /= (maxPos[N-j] + 1);
-    }
-
+void Lanford(int maxPos[N+1],int *tabTache){
     //construction du tableau a partir de la tache
     int tableau[2*N+1];
     memset(tableau,0,sizeof(int)*(2*N+1));
@@ -115,11 +102,52 @@ int main(){
     }
     printf("nb tache: %d\n",nbTMax);
 
+    //cree le tableau de tâche
+    int **tabTache=malloc(sizeof(int*)*nbTMax);
+    for(int i=0;i<nbTMax;i++){
+        tabTache[i]=malloc(sizeof(int)*(N));
+        memset(tabTache[i],0,sizeof(int)*(N));
+    }
+
+    // Remplir le tableau de tâches
+    for (int i = 0; i < nbTMax; i++) {
+        int temp = i;
+        for (int j = 0; j < tailleTache; j++) {
+            tabTache[i][j] = temp % (maxPos[N-j] + 1);
+            temp /= (maxPos[N-j] + 1);
+        }
+    }
+
+    printf("fin remplissage\n");
+
+    //premoiere tache
+    printf("Premiere tache: ");
+    //afficher la premiere tache
+    for(int i=0;i<N;i++){
+        printf("%d ",tabTache[0][i]);
+    }
+    printf("\n");
+
+    //derniere tache
+    printf("Derniere tache: ");
+    //afficher la premiere tache
+    for(int i=0;i<N;i++){
+        printf("%d ",tabTache[nbTMax-1][i]);
+    }
+    printf("\n----------------\n");
+
     //Lancement des tâches
     #pragma omp parallel for
     for(int i=0;i<nbTMax;i++){
-        Lanford(maxPos,i);
+        Lanford(maxPos,tabTache[i]);
     }
 
-    printf("Nombre de solutions : %lld\n",nb);
+    printf("Nombre de solutions : %d\n",nb);
+
+    //free
+    for(int i=0;i<nbTMax;i++){
+        free(tabTache[i]);
+    }
+    free(tabTache);
+
 }
